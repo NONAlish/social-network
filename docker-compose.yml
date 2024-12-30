@@ -41,5 +41,22 @@ services:
     depends_on:
       - redis
   
+  flower:
+    build: 
+      context: './backend'
+    hostname: flower
+    entrypoint: celery
+    command: -A social_app_backend flower 
+    volumes:
+      - ./backend:/backend
+    links:
+      - redis
+    depends_on:
+      - redis
+    ports:
+      - "5555:5555"
+
+
+  
 
   
