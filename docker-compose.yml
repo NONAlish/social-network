@@ -1,0 +1,45 @@
+services:
+  backend:
+    build:
+      context: './backend'
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/backend
+    environment:
+      - DB_HOST=database
+      - DB_NAME=socialnetworkdb
+      - DB_USER=alikhan
+      - DB_PASSWORD=secret
+    command: >
+      sh -c "python3 manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      - database
+
+  database:
+    image: postgres:14.6-alpine
+    environment:
+      - POSTGRES_DB=socialnetworkdb
+      - POSTGRES_USER=alikhan
+      - POSTGRES_PASSWORD=secret
+
+
+  redis:
+    image: redis
+    hostname: redis
+
+  worker:
+    build:
+      context: './backend'
+    hostname: worker
+    entrypoint: celery
+    command: -A social_app_backend worker --loglevel=info
+    volumes:
+      - ./backend:/backend
+    links:
+      - redis
+    depends_on:
+      - redis
+  
+
+  
